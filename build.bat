@@ -1,21 +1,37 @@
-@echo off
-echo Compiling...
+    @echo off
+    echo Compiling...
 
-set CLASSPATH=lib/*
+    set CLASSPATH=lib/*;src/
 
-javac -cp "%CLASSPATH%" -d out ^
-src\excel\ExcelFileManager.java ^
-src\gui\ExcelEditorFrame.java src\gui\ExcelTableModel.java ^
-src\Main.java
+    set OUT_DIR=out
 
-REM Alternativa: compilar todos os arquivos .java recursivamente a partir de src
-REM javac -cp "%CLASSPATH%" -d out src/**/*.java
+    if exist %OUT_DIR% rd /s /q %OUT_DIR%
+    mkdir %OUT_DIR%
 
+    javac -cp "%CLASSPATH%" -d %OUT_DIR% ^
+    src\excel\ExcelFileManager.java ^
+    src\gui\ExcelEditorFrame.java src\gui\ExcelTableModel.java ^
+    src\Main.java
 
-if %errorlevel% equ 0 (
-    echo Compilation Done!
-) else (
-    echo Error at compile time.
-)
+    if %errorlevel% neq 0 (
+        echo Error during compiling time.
+        goto end
+    )
 
-echo Finished!
+    echo Success!
+    echo Will create .JAR now...
+
+    set JAR_NAME=excelula.jar
+
+    jar cvfm %JAR_NAME% manifest.txt -C %OUT_DIR% .
+
+    if %errorlevel% neq 0 (
+        echo Error during JAR creation.
+        goto end
+    )
+
+    echo JAR created: %JAR_NAME%
+
+    :end
+    echo Proccess finished with success.
+    

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class ExcelEditorFrame extends JFrame {
 
@@ -24,6 +25,7 @@ public class ExcelEditorFrame extends JFrame {
     private JButton addRowButton;
     private JButton removeRowButton;
     private JButton addColumnButton;
+    private JButton addRowWithDetailsButton;
     private JComponent rowHeader;
 
     public ExcelEditorFrame() {
@@ -60,7 +62,6 @@ public class ExcelEditorFrame extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(dataTable);
 
-        // Custom header for lines
         rowHeader = new JComponent() {
             @Override
             public Dimension getPreferredSize() {
@@ -92,9 +93,7 @@ public class ExcelEditorFrame extends JFrame {
                         FontMetrics fm = g2d.getFontMetrics();
                         int x = (getWidth() - fm.stringWidth(rowNumber)) / 2;
                         int y = rowBounds.y + fm.getAscent() + (rowBounds.height - fm.getHeight()) / 2;
-                        // g2d.drawString(rowNumber, x, y); // Was causing override
 
-                        // alternate bg color
                         if (!dataTable.isRowSelected(row)) {
                             g2d.setColor(
                                     row % 2 == 0 ? UIManager.getColor("Table.background") : new Color(240, 240, 240));
@@ -102,10 +101,9 @@ public class ExcelEditorFrame extends JFrame {
                             g2d.setColor(getForeground());
                             g2d.drawString(rowNumber, x, y);
                         } else {
-                            // if line is selected
                             g2d.setColor(dataTable.getSelectionBackground());
                             g2d.fillRect(0, rowBounds.y, getWidth(), rowBounds.height);
-                            g2d.setColor(dataTable.getSelectionForeground()); // selected text color
+                            g2d.setColor(dataTable.getSelectionForeground());
                             g2d.drawString(rowNumber, x, y);
                         }
                     }
@@ -114,9 +112,9 @@ public class ExcelEditorFrame extends JFrame {
         };
 
         scrollPane.setRowHeaderView(rowHeader);
+
         scrollPane.getVerticalScrollBar().addAdjustmentListener(e -> rowHeader.repaint());
         dataTable.getSelectionModel().addListSelectionListener(e -> rowHeader.repaint());
-
         dataTable.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
@@ -130,15 +128,17 @@ public class ExcelEditorFrame extends JFrame {
         JPanel controlPanel = new JPanel();
         loadButton = new JButton("Load Excel");
         saveButton = new JButton("Save Excel");
-        addRowButton = new JButton("Add Row");
+        addRowButton = new JButton("Add Empty Row");
         removeRowButton = new JButton("Remove Selected Row");
         addColumnButton = new JButton("Add Column");
+        addRowWithDetailsButton = new JButton("Add Row with Details");
 
         controlPanel.add(loadButton);
         controlPanel.add(saveButton);
         controlPanel.add(addRowButton);
         controlPanel.add(removeRowButton);
         controlPanel.add(addColumnButton);
+        controlPanel.add(addRowWithDetailsButton);
 
         add(controlPanel, BorderLayout.SOUTH);
 
@@ -151,9 +151,53 @@ public class ExcelEditorFrame extends JFrame {
         });
         removeRowButton.addActionListener(this::removeSelectedRow);
         addColumnButton.addActionListener(this::addColumn);
+        addRowWithDetailsButton.addActionListener(this::showAddRowPopup);
 
         setLocationRelativeTo(null);
+    }
 
+    private void showAddRowPopup(ActionEvent e) {
+        int columnCount = tableModel.getColumnCount();
+        if (columnCount == 0) {
+            JOptionPane.showMessageDialog(this, "Please load an Excel file first to define columns.", "No Columns",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JPanel inputPanel = new JPanel(new GridLayout(columnCount, 2, 5, 5));
+
+        List<JTextField> inputFields = new ArrayList<>();
+
+        Vector<String> columnIdentifiers = new Vector<>();
+        for (int i = 0; i < dataTable.getColumnCount(); i++) {
+            columnIdentifiers.add(dataTable.getColumnName(i));
+        }
+
+        for (String header : columnIdentifiers) {
+            inputPanel.add(new JLabel(header + ":"));
+            JTextField textField = new JTextField(20);
+            inputFields.add(textField);
+            inputPanel.add(textField);
+        }
+
+        int result = JOptionPane.showConfirmDialog(this, inputPanel, "Enter Row Details",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            List<String> newRowData = new ArrayList<>();
+            for (JTextField textField : inputFields) {
+                newRowData.add(textField.getText());
+            }
+
+            tableModel.addRow(newRowData);
+
+            rowHeader.revalidate();
+            rowHeader.repaint();
+
+            int newRowIndex = tableModel.getRowCount() - 1;
+            dataTable.setRowSelectionInterval(newRowIndex, newRowIndex);
+            dataTable.scrollRectToVisible(dataTable.getCellRect(newRowIndex, 0, true));
+        }
     }
 
     private void loadExcelFile(ActionEvent e) {

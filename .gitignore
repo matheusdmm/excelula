@@ -17,7 +17,7 @@ target/ # Diretório comum de builds (Maven/Gradle), útil se você migrar
 
 # Ignora diretórios de dependências (se você estiver gerenciando dependências externamente, como com Maven/Gradle)
 # Se você estiver incluindo JARs diretamente na pasta lib/ e quiser versioná-los, comente a linha abaixo.
-lib/
+# lib/
 
 # Ignora arquivos de log
 *.log

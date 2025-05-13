@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-    # Use ubuntu-latest as it's a common runner environment and supports shell scripts
     runs-on: ubuntu-latest
 
     steps:
@@ -34,11 +33,12 @@ jobs:
 
     - name: Create manifest.txt for JAR
       # Create the manifest file needed for the executable JAR
+      # Dynamically create the Class-Path entry with line wrapping
       run: |
         echo "Main-Class: Main" > manifest.txt
-        # Dynamically create the Class-Path entry based on files in lib/
-        # This requires shell scripting to list files and format correctly
-        echo "Class-Path: $(ls lib/*.jar | paste -sd " " - | sed 's|lib/|lib/|g')" >> manifest.txt
+        echo "Class-Path: \\" >> manifest.txt # Start Class-Path line, use \\ for literal \
+        # List JARs, format them with lib/ prefix, join with spaces, and wrap lines
+        ls lib/*.jar | xargs -I {} echo "lib/{}" | paste -sd " " - | fold -s -w 70 | sed 's/^/ /' >> manifest.txt
         echo "" >> manifest.txt # Ensure a newline at the end
 
     - name: Set CLASSPATH environment variable
@@ -77,6 +77,3 @@ jobs:
 
     - name: Verify JAR creation (Optional)
       run: ls -l excelula.jar
-
-    # Optional: Add steps to run tests or package the output artifact
-    # For this MVP, we'll just build the JAR.

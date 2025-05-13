@@ -58,7 +58,6 @@ jobs:
       # We use the CLASSPATH env var set in the previous step
       run: |
         javac -cp "$CLASSPATH" -d out \
-        src/db/DB.java \
         src/excel/ExcelFileManager.java \
         src/gui/ExcelEditorFrame.java src/gui/ExcelTableModel.java \
         src/Main.java

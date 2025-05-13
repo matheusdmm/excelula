@@ -1,0 +1,42 @@
+# Ignora arquivos de classe compilados
+*.class
+
+# Ignora o diretório de saída da compilação
+out/*
+
+# Ignora arquivos e diretórios específicos de IDEs comuns
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+target/ # Diretório comum de builds (Maven/Gradle), útil se você migrar
+
+# Ignora diretórios de dependências (se você estiver gerenciando dependências externamente, como com Maven/Gradle)
+# Se você estiver incluindo JARs diretamente na pasta lib/ e quiser versioná-los, comente a linha abaixo.
+lib/
+
+# Ignora arquivos de log
+*.log
+log/
+
+# Ignora arquivos temporários e de backup
+*~
+*.bak
+*.swp
+*.swo
+
+# Ignora arquivos específicos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignora arquivos de configuração sensíveis ou locais (exemplo)
+# config.properties
+# *.local
+
+# Ignora os scripts de build e run se forem específicos do seu ambiente local
+# build.bat
+# run.bat

@@ -1,0 +1,83 @@
+# This workflow will build a Java project using custom scripts (build.bat/build.sh)
+# and create an executable JAR.
+# It does NOT use Maven or Gradle.
+
+name: Java CI with Custom Script
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # Use ubuntu-latest as it's a common runner environment and supports shell scripts
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      # Using temurin distribution which is a common OpenJDK build
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        # Caching is less relevant for script builds unless you cache the lib folder,
+        # but managing lib dependencies manually is less common in CI.
+        # We'll keep it simple and assume lib is checked in or handled otherwise.
+        # cache: maven # Remove Maven cache
+
+    - name: Show files in lib directory (for debugging)
+      run: ls -l lib/
+
+    - name: Create manifest.txt for JAR
+      # Create the manifest file needed for the executable JAR
+      run: |
+        echo "Main-Class: Main" > manifest.txt
+        # Dynamically create the Class-Path entry based on files in lib/
+        # This requires shell scripting to list files and format correctly
+        echo "Class-Path: $(ls lib/*.jar | paste -sd " " - | sed 's|lib/|lib/|g')" >> manifest.txt
+        echo "" >> manifest.txt # Ensure a newline at the end
+
+    - name: Set CLASSPATH environment variable
+      # Set the CLASSPATH for the compilation step.
+      # This needs to be done in a way that persists across steps,
+      # or included directly in the javac command.
+      # Setting as an environment variable for the job is one approach.
+      # Alternatively, pass -cp directly to javac. Let's use direct -cp in javac step.
+      run: echo "CLASSPATH=.:lib/*:src/" >> $GITHUB_ENV # Set for subsequent steps
+
+    - name: Create output directory
+      # Create the directory where compiled classes will be placed
+      run: mkdir out
+
+    - name: Compile Java files
+      # Compile the source files using javac, specifying the classpath and output directory
+      # We use the CLASSPATH env var set in the previous step
+      run: |
+        javac -cp "$CLASSPATH" -d out \
+        src/db/DB.java \
+        src/excel/ExcelFileManager.java \
+        src/gui/ExcelEditorFrame.java src/gui/ExcelTableModel.java \
+        src/Main.java
+      env:
+        # Pass the CLASSPATH environment variable to this step
+        CLASSPATH: ${{ env.CLASSPATH }}
+
+
+    - name: Create Executable JAR
+      # Create the JAR file including the manifest and compiled classes
+      # Use the 'jar' tool from the JDK
+      run: jar cvfm excelula.jar manifest.txt -C out .
+
+    # The Maven dependency submission action is not applicable here, so we remove it.
+    # - name: Update dependency graph
+    #   uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+
+    - name: Verify JAR creation (Optional)
+      run: ls -l excelula.jar
+
+    # Optional: Add steps to run tests or package the output artifact
+    # For this MVP, we'll just build the JAR.

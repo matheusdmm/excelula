@@ -4,6 +4,12 @@ This project is an quick editor for Excel file (`.xls` and `.xlsx`) with a Java 
 
 It was created to be a simple tool for the job of ading inputs into a .xlsx database file, since I hate to use Excel i rather use a specific tool that I managed to create 😁.
 
+## Overview
+
+![main interface](/assets/img2.jpg)
+![main interface](/assets/img1.jpg)
+![main interface](/assets/img3.jpg)
+
 ## Dependencies
 
 This project uses the following external libraries:
@@ -53,23 +59,17 @@ java -jar excelula.jar
 ## Features
 
 - Load Excel files (.xls and .xlsx).
-
 - View spreadsheet data in a GUI table.
-
 - Edit cell values (treated as strings).
-
 - Add new empty rows.
-
 - Remove selected rows.
-
 - Add new columns.
-
 - Add rows with details via a popup, filling fields for each column.
-
 - Save changes to a new Excel file (.xlsx).
-
 - Row numbering in the table.
-
 - Alternating row colors for improved readability.
-
 - .xls and .xlsx file filter in the file chooser.
+
+## Known behavior
+
+- if your file has filters or complex headers, it will fail to parse

@@ -1,7 +1,6 @@
 package excel;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelFileManager {
-
-    // Reads data from an Excel file, treating all cells as strings.
+    // Handles both .xls and .xlsx formats using WorkbookFactory.
     public static List<List<String>> readExcel(File file) throws IOException {
         List<List<String>> data = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(file);
-                Workbook workbook = new XSSFWorkbook(fis)) { // Use HSSFWorkbook for .xls
+                Workbook workbook = WorkbookFactory.create(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0); // Assuming the first sheet
 
@@ -25,7 +23,7 @@ public class ExcelFileManager {
             for (Row row : sheet) {
                 List<String> rowData = new ArrayList<>();
                 for (Cell cell : row) {
-                    rowData.add(formatter.formatCellValue(cell));
+                    rowData.add(formatter.formatCellValue(cell)); // Get cell value as string
                 }
                 data.add(rowData);
             }
@@ -33,14 +31,12 @@ public class ExcelFileManager {
         return data;
     }
 
-    // Writes data to an Excel file.
     public static void writeExcel(List<List<String>> data, File file) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook();
+        // will save only as .xlsx
+        try (Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
                 FileOutputStream fos = new FileOutputStream(file)) {
 
-            String sheetName = "Sheet1";
-
-            Sheet sheet = workbook.createSheet(sheetName);
+            Sheet sheet = workbook.createSheet("Sheet1");
 
             for (int i = 0; i < data.size(); i++) {
                 Row row = sheet.createRow(i);

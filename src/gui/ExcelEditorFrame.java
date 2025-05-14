@@ -1,13 +1,9 @@
 package gui;
 
 import excel.ExcelFileManager;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import javax.swing.ListCellRenderer;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -115,6 +111,7 @@ public class ExcelEditorFrame extends JFrame {
 
         scrollPane.getVerticalScrollBar().addAdjustmentListener(e -> rowHeader.repaint());
         dataTable.getSelectionModel().addListSelectionListener(e -> rowHeader.repaint());
+
         dataTable.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
@@ -186,7 +183,7 @@ public class ExcelEditorFrame extends JFrame {
         if (result == JOptionPane.OK_OPTION) {
             List<String> newRowData = new ArrayList<>();
             for (JTextField textField : inputFields) {
-                newRowData.add(textField.getText());
+                newRowData.add(textField.getText().trim());
             }
 
             tableModel.addRow(newRowData);
@@ -204,7 +201,7 @@ public class ExcelEditorFrame extends JFrame {
         JFileChooser fileChooser = new JFileChooser();
 
         FileNameExtensionFilter fileType = new FileNameExtensionFilter(
-                "Arquivos Excel (.xls, .xlsx)", "xls", "xlsx");
+                "MS Excel (.xls, .xlsx)", "xls", "xlsx");
 
         fileChooser.addChoosableFileFilter(fileType);
         fileChooser.setFileFilter(fileType);

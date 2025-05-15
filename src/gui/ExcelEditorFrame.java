@@ -11,21 +11,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ExcelEditorFrame extends JFrame {
 
-    private JTable dataTable;
-    private ExcelTableModel tableModel;
-    private JButton loadButton;
-    private JButton saveButton;
-    private JButton addRowButton;
-    private JButton removeRowButton;
-    private JButton addColumnButton;
-    private JButton addRowWithDetailsButton;
-    private JComponent rowHeader;
+    private final JTable dataTable;
+    private final ExcelTableModel tableModel;
+    private final JButton loadButton;
+    private final JButton saveButton;
+    private final JButton addRowButton;
+    private final JButton removeRowButton;
+    private final JButton addColumnButton;
+    private final JButton addRowWithDetailsButton;
+    private final JComponent rowHeader;
+
+    protected static final Logger logger = LogManager.getLogger();
 
     public ExcelEditorFrame() {
-        super("MTH - ExCel edit v0.2");
+        super("MTH - ExCel edit v0.3");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -227,7 +231,8 @@ public class ExcelEditorFrame extends JFrame {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error loading file: " + ex.getMessage(), "Error",
                         JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
+                // ex.printStackTrace();
+                logger.info(ex);
             }
         }
     }
@@ -248,7 +253,7 @@ public class ExcelEditorFrame extends JFrame {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage(), "Error",
                         JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
+                logger.info(ex);
             }
         }
     }

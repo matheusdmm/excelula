@@ -1,12 +1,15 @@
 @echo off
+echo Maven .jar running...
 
-set CLASSPATH=out;lib/*
+set ARTIFACT_ID=excel-editor-mvp
+set VERSION=1.0-SNAPSHOT
+set JAR_FILE=target/%ARTIFACT_ID%-%VERSION%.jar
 
-echo Running...
-java -cp "%CLASSPATH%" Main
-
-if %errorlevel% equ 0 (
-    echo Finished.
-) else (
-    echo Error.
+if not exist %JAR_FILE% (
+    echo Error: JAR not present in %JAR_FILE%.
+    goto end
 )
+javaw -jar %JAR_FILE%
+
+:end
+echo Process ended.

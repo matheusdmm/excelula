@@ -1,5 +1,7 @@
 # Ignora arquivos de classe compilados
 *.class
+*$*
+target/*
 
 # Ignora o diretório de saída da compilação
 out/*

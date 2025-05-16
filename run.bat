@@ -1,7 +1,7 @@
 @echo off
 echo Maven .jar running...
 
-set ARTIFACT_ID=excel-editor-mvp
+set ARTIFACT_ID=mth-excelula
 set VERSION=1.0-SNAPSHOT
 set JAR_FILE=target/%ARTIFACT_ID%-%VERSION%.jar
 

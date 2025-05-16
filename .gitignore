@@ -2,9 +2,8 @@
 *.class
 *$*
 target/*
-
-# Ignora o diretório de saída da compilação
-out/*
+!target/*.jar
+!target/*/*.ja
 
 # Ignora arquivos e diretórios específicos de IDEs comuns
 .idea/

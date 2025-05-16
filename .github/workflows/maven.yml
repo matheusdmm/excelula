@@ -1,8 +1,6 @@
-# This workflow will build a Java project using custom scripts (build.bat/build.sh)
-# and create an executable JAR.
-# It does NOT use Maven or Gradle.
+# This workflow will build a Java project with Maven and create an executable JAR.
 
-name: Java CI with Custom Script
+name: Java CI with Maven
 
 on:
   push:
@@ -15,65 +13,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      # Using temurin distribution which is a common OpenJDK build
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        # Caching is less relevant for script builds unless you cache the lib folder,
-        # but managing lib dependencies manually is less common in CI.
-        # We'll keep it simple and assume lib is checked in or handled otherwise.
-        # cache: maven # Remove Maven cache
+      - name: Set up JDK 17
+        # Usando a distribuição Temurin, comum para OpenJDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          # Configura o cache do Maven para acelerar builds futuros
+          cache: maven
 
-    - name: Show files in lib directory (for debugging)
-      run: ls -l lib/
+      - name: Build with Maven
+        # Executa o goal 'package' do Maven.
+        # Este goal executa todo o ciclo de vida atÃ© 'package',
+        # incluindo compilaÃ§Ã£o, processamento de recursos, testes (se houver)
+        # e a criaÃ§Ã£o do JAR executÃ¡vel (Fat JAR) usando o maven-shade-plugin
+        # configurado no pom.xml.
+        # -B: Modo batch (menos verboso)
+        # --file pom.xml: Especifica o arquivo pom.xml (redundante se estiver na raiz, mas boa prÃ¡tica)
+        run: mvn -B package --file pom.xml
 
-    - name: Create manifest.txt for JAR
-      # Create the manifest file needed for the executable JAR
-      # Dynamically create the Class-Path entry with line wrapping
-      run: |
-        echo "Main-Class: Main" > manifest.txt
-        echo "Class-Path: \\" >> manifest.txt # Start Class-Path line, use \\ for literal \
-        # List JARs, format them with lib/ prefix, join with spaces, and wrap lines
-        ls lib/*.jar | xargs -I {} echo "lib/{}" | paste -sd " " - | fold -s -w 70 | sed 's/^/ /' >> manifest.txt
-        echo "" >> manifest.txt # Ensure a newline at the end
-
-    - name: Set CLASSPATH environment variable
-      # Set the CLASSPATH for the compilation step.
-      # This needs to be done in a way that persists across steps,
-      # or included directly in the javac command.
-      # Setting as an environment variable for the job is one approach.
-      # Alternatively, pass -cp directly to javac. Let's use direct -cp in javac step.
-      run: echo "CLASSPATH=.:lib/*:src/" >> $GITHUB_ENV # Set for subsequent steps
-
-    - name: Create output directory
-      # Create the directory where compiled classes will be placed
-      run: mkdir out
-
-    - name: Compile Java files
-      # Compile the source files using javac, specifying the classpath and output directory
-      # We use the CLASSPATH env var set in the previous step
-      run: |
-        javac -cp "$CLASSPATH" -d out \
-        src/excel/ExcelFileManager.java \
-        src/gui/ExcelEditorFrame.java src/gui/ExcelTableModel.java \
-        src/Main.java
-      env:
-        # Pass the CLASSPATH environment variable to this step
-        CLASSPATH: ${{ env.CLASSPATH }}
-
-
-    - name: Create Executable JAR
-      # Create the JAR file including the manifest and compiled classes
-      # Use the 'jar' tool from the JDK
-      run: jar cvfm excelula.jar manifest.txt -C out .
-
-    # The Maven dependency submission action is not applicable here, so we remove it.
-    # - name: Update dependency graph
-    #   uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
-
-    - name: Verify JAR creation (Optional)
-      run: ls -l excelula.jar
+      - name: Upload Fat JAR artifact
+        # Faz o upload do JAR executÃ¡vel gerado pelo maven-shade-plugin como um artefato do workflow.
+        # Isso permite baixar o JAR apÃ³s a conclusÃ£o do workflow.
+        uses: actions/upload-artifact@v4
+        with:
+          # O nome do artefato. Pode ser qualquer nome descritivo.
+          name: excel-editor-mvp-jar
+          # O caminho para o arquivo ou diretÃ³rio a ser upado.
+          # O maven-shade-plugin geralmente nomeia o Fat JAR como <artifactId>-<version>-shaded.jar
+          # e o coloca no diretÃ³rio 'target'.
+          path: target/excel-editor-mvp-1.0-SNAPSHOT-shaded.jar
+          # Opcional: Define um tempo de retenÃ§Ã£o para o artefato (em dias). PadrÃ£o Ã© 90 dias.
+          # retention-days: 5

@@ -4,12 +4,11 @@ import excel.ExcelFileManager;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader; // Importação adicionada
-import javax.swing.table.TableRowSorter; // Importação adicionada
-import javax.swing.ListCellRenderer; // Importação adicionada
-import javax.swing.event.DocumentEvent; // Importação adicionada
-import javax.swing.event.DocumentListener; // Importação adicionada
-
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableRowSorter;
+import javax.swing.ListCellRenderer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,8 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.PatternSyntaxException; // Importação adicionada
-
+import java.util.regex.PatternSyntaxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,10 +27,10 @@ public class ExcelEditorFrame extends JFrame {
     private ExcelTableModel tableModel;
     private JButton loadButton;
     private JButton saveButton;
-    private JButton addRowButton; // Botão original para adicionar linha vazia
+    private JButton addRowButton;
     private JButton removeRowButton;
     private JButton addColumnButton;
-    private JButton addRowWithDetailsButton; // Novo botão para adicionar linha com detalhes
+    private JButton addRowWithDetailsButton;
     private JComponent rowHeader;
     private TableRowSorter<ExcelTableModel> sorter; // Declarar o sorter
 
@@ -42,8 +40,11 @@ public class ExcelEditorFrame extends JFrame {
 
     protected static final Logger logger = LogManager.getLogger(ExcelEditorFrame.class);
 
+    // Change the version
+    private static final String appVersion = "MTH - ExCel edit v0.3"; 
+    
     public ExcelEditorFrame() {
-        super("MTH - ExCel edit v0.3");
+        super(appVersion);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
